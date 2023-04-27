@@ -59,14 +59,8 @@ class Application(QMainWindow):
         self.ui.action_open_freq.triggered.connect(self.open_frequency)
         self.ui.action_save_freq.triggered.connect(self.save_frequency)
 
-    def set_text_frequency(self):
-        self.clear()
-        choice = self.ui.combo.currentIndex()
-        # if choice == self.Language.RUSSIAN.value:
+    def set_text_frequency(self, choice):
         self.ui.table_stats.setRowCount(len(self.abc[choice]))
-        self.text_frequency = {k: v for k, v in
-                               sorted(self.text_frequency.items(), key=lambda item: item[1][1], reverse=True)}
-
         index = 0
         for i in range(len(self.text_frequency.items())):
             text_frequency = list(self.text_frequency.items())
@@ -76,7 +70,9 @@ class Application(QMainWindow):
                 self.ui.table_stats.setItem(index, 0, QTableWidgetItem(letter.upper()))
                 self.ui.table_stats.setItem(index, 1, QTableWidgetItem(f"{count}"))
                 self.ui.table_stats.setItem(index, 2, QTableWidgetItem(f"{frequency * 100:g}"))
+                self.ui.table_replace.setItem(index, 0, QTableWidgetItem(f"{letter.upper()} - {frequency * 100:g}"))
                 index += 1
+        self.ui.table_stats.resizeColumnsToContents()
 
     def set_frequency(self, choice):
         self.ui.table_replace.setRowCount(len(self.abc[choice]))
@@ -97,10 +93,9 @@ class Application(QMainWindow):
         elif x == self.Language.ENGLISH.value:
             if not self.frequency or self.frequency == ru_abc:
                 self.frequency = en_abc
-        # elif x == self.Language.USER.value:
-        #     self.clear()  # todo
-        # self.frequency = {}
         self.set_frequency(x)
+        if self.text_frequency:
+            self.set_text_frequency(x)
 
     def clear(self):
         # is_decrypted = False
@@ -109,21 +104,41 @@ class Application(QMainWindow):
         self.ui.table_replace.clearContents()
         self.ui.table_replace.setRowCount(0)
         self.frequency = {}
+        self.text_frequency = {}
 
     def analyze_ciphertext(self):
         # todo: тут анализируем шифротекст, получаем вероятности
-        ...
+        self.ui.table_stats.clearContents()
+        self.ui.table_stats.setRowCount(0)
+        self.text_frequency = {}
+
+        text = self.ui.plain_text.toPlainText().lower().replace("\n", "").replace("\r", "").replace(" ", "")
+        if not text:
+            return QMessageBox.information(self, "Ошибка", "Текст не найден", QMessageBox.Ok)
+        for abc in self.abc:
+            for char in abc:
+                self.text_frequency[char] = (text.count(char), text.count(char) / len(text))
+        self.text_frequency = {k: v for k, v in
+                               sorted(self.text_frequency.items(), key=lambda item: item[1][1], reverse=True)}
+        self.set_text_frequency(self.ui.combo.currentIndex())
 
     def analyze_plaintext(self):
         # todo: тут анализируем открытый, получаем вероятности символов для каждого автора
         # self.ui.combo.setCurrentIndex(0)
-        self.clear()
+        self.ui.table_replace.clearContents()
+        self.ui.table_replace.setRowCount(0)
+        self.frequency = {}
+
         text = self.ui.plain_text.toPlainText().lower().replace("\n", "").replace("\r", "").replace(" ", "")
+        if not text:
+            return QMessageBox.information(self, "Ошибка", "Текст не найден", QMessageBox.Ok)
         for abc in self.abc:
             for char in abc:
                 self.frequency[char] = text.count(char) / len(text)
         self.frequency = {k: v for k, v in sorted(self.frequency.items(), key=lambda item: item[1], reverse=True)}
         self.set_frequency(self.ui.combo.currentIndex())
+        if self.text_frequency:
+            self.set_text_frequency(self.ui.combo.currentIndex())
 
     def process_data(self):
         self.clear()
