@@ -78,21 +78,29 @@ class Application(QMainWindow):
                 self.ui.table_stats.setItem(index, 2, QTableWidgetItem(f"{frequency * 100:g}"))
                 index += 1
 
-    def set_frequency(self):
-        self.ui.table_replace.setRowCount(len(self.frequency))
+    def set_frequency(self, choice):
+        self.ui.table_replace.setRowCount(len(self.abc[choice]))
+        index = 0
         for i in range(len(self.frequency)):
-            letter, frequency = list(self.frequency.items())[i]
-            self.ui.table_replace.setItem(i, 1, QTableWidgetItem(f"{letter.upper()} - {frequency * 100:g}"))
+            text_frequency = list(self.frequency.items())
+            if text_frequency[i][0].lower() in self.abc[choice].keys():
+                letter, frequency = list(self.frequency.items())[i]
+                self.ui.table_replace.setItem(index, 1, QTableWidgetItem(f"{letter.upper()} - {frequency * 100:g}"))
+                index += 1
 
     def handle_language(self, x):
+        ru_abc = {k: v for k, v in sorted(self.ru_abc.items(), key=lambda item: item[1], reverse=True)}
+        en_abc = {k: v for k, v in sorted(self.en_abc.items(), key=lambda item: item[1], reverse=True)}
         if x == self.Language.RUSSIAN.value:
-            self.frequency = {k: v for k, v in sorted(self.ru_abc.items(), key=lambda item: item[1], reverse=True)}
+            if not self.frequency or self.frequency == en_abc:
+                self.frequency = ru_abc
         elif x == self.Language.ENGLISH.value:
-            self.frequency = {k: v for k, v in sorted(self.en_abc.items(), key=lambda item: item[1], reverse=True)}
+            if not self.frequency or self.frequency == ru_abc:
+                self.frequency = en_abc
         # elif x == self.Language.USER.value:
         #     self.clear()  # todo
         # self.frequency = {}
-        self.set_frequency()
+        self.set_frequency(x)
 
     def clear(self):
         # is_decrypted = False
@@ -109,13 +117,13 @@ class Application(QMainWindow):
     def analyze_plaintext(self):
         # todo: тут анализируем открытый, получаем вероятности символов для каждого автора
         # self.ui.combo.setCurrentIndex(0)
+        self.clear()
         text = self.ui.plain_text.toPlainText().lower().replace("\n", "").replace("\r", "").replace(" ", "")
-        # text = self.ui.plain_text.toPlainText().lower()
         for abc in self.abc:
             for char in abc:
-                self.text_frequency[char] = (text.count(char), text.count(char) / len(text))
-        self.set_text_frequency()
-        ...
+                self.frequency[char] = text.count(char) / len(text)
+        self.frequency = {k: v for k, v in sorted(self.frequency.items(), key=lambda item: item[1], reverse=True)}
+        self.set_frequency(self.ui.combo.currentIndex())
 
     def process_data(self):
         self.clear()
@@ -144,7 +152,7 @@ class Application(QMainWindow):
             with open(file_name[0], "rb") as file:
                 # todo: open analysed frequency
                 self.frequency = pickle.load(file)
-                self.set_frequency()
+                self.set_frequency(self.ui.combo.currentIndex())
         else:
             QMessageBox.information(self, "Ошибка", "Файл не выбран", QMessageBox.Ok)
 
