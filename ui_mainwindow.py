@@ -30,14 +30,14 @@ class Ui_MainWindow(object):
         self.action_analyse_text.setObjectName(u"action_analyse_text")
         self.action_decrypt = QAction(MainWindow)
         self.action_decrypt.setObjectName(u"action_decrypt")
-        self.action_open_plain = QAction(MainWindow)
-        self.action_open_plain.setObjectName(u"action_open_plain")
+        self.action_open_freq = QAction(MainWindow)
+        self.action_open_freq.setObjectName(u"action_open_freq")
         self.action_open_cipher = QAction(MainWindow)
         self.action_open_cipher.setObjectName(u"action_open_cipher")
         self.action_save_cipher = QAction(MainWindow)
         self.action_save_cipher.setObjectName(u"action_save_cipher")
-        self.action_save_plain = QAction(MainWindow)
-        self.action_save_plain.setObjectName(u"action_save_plain")
+        self.action_save_freq = QAction(MainWindow)
+        self.action_save_freq.setObjectName(u"action_save_freq")
         self.action_clear = QAction(MainWindow)
         self.action_clear.setObjectName(u"action_clear")
         self.action_analyse_freq = QAction(MainWindow)
@@ -122,8 +122,8 @@ class Ui_MainWindow(object):
         self.menu_frequency.addAction(self.action_analyse_freq)
         self.menu_frequency.addAction(self.action_clear)
         self.menu_frequency.addSeparator()
-        self.menu_frequency.addAction(self.action_open_plain)
-        self.menu_frequency.addAction(self.action_save_plain)
+        self.menu_frequency.addAction(self.action_open_freq)
+        self.menu_frequency.addAction(self.action_save_freq)
 
         self.retranslateUi(MainWindow)
 
@@ -140,13 +140,13 @@ class Ui_MainWindow(object):
         self.action_decrypt.setText(QCoreApplication.translate("MainWindow",
                                                                u"\u0420\u0430\u0441\u0448\u0438\u0444\u0440\u043e\u0432\u0430\u0442\u044c",
                                                                None))
-        self.action_open_plain.setText(
+        self.action_open_freq.setText(
             QCoreApplication.translate("MainWindow", u"\u041e\u0442\u043a\u0440\u044b\u0442\u044c", None))
         self.action_open_cipher.setText(
             QCoreApplication.translate("MainWindow", u"\u041e\u0442\u043a\u0440\u044b\u0442\u044c", None))
         self.action_save_cipher.setText(
             QCoreApplication.translate("MainWindow", u"\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c", None))
-        self.action_save_plain.setText(
+        self.action_save_freq.setText(
             QCoreApplication.translate("MainWindow", u"\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c", None))
         self.action_clear.setText(
             QCoreApplication.translate("MainWindow", u"\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c", None))

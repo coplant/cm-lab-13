@@ -209,8 +209,8 @@
                 <addaction name="action_analyse_freq"/>
                 <addaction name="action_clear"/>
                 <addaction name="separator"/>
-                <addaction name="action_open_plain"/>
-                <addaction name="action_save_plain"/>
+                <addaction name="action_open_freq"/>
+                <addaction name="action_save_freq"/>
             </widget>
             <addaction name="menu_text"/>
             <addaction name="menu_frequency"/>
@@ -225,7 +225,7 @@
                 <string>Расшифровать</string>
             </property>
         </action>
-        <action name="action_open_plain">
+        <action name="action_open_freq">
             <property name="text">
                 <string>Открыть</string>
             </property>
@@ -240,7 +240,7 @@
                 <string>Сохранить</string>
             </property>
         </action>
-        <action name="action_save_plain">
+        <action name="action_save_freq">
             <property name="text">
                 <string>Сохранить</string>
             </property>
