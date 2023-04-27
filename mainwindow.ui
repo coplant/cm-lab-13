@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>MainWindow</class>
+    <widget class="QMainWindow" name="MainWindow">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>750</width>
+                <height>433</height>
+            </rect>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>750</width>
+                <height>433</height>
+            </size>
+        </property>
+        <property name="maximumSize">
+            <size>
+                <width>750</width>
+                <height>1000</height>
+            </size>
+        </property>
+        <property name="windowTitle">
+            <string>Лабораторная работа 13: Частотный криптоанализ</string>
+        </property>
+        <widget class="QWidget" name="centralwidget">
+            <widget class="QTextEdit" name="plain_text">
+                <property name="geometry">
+                    <rect>
+                        <x>220</x>
+                        <y>10</y>
+                        <width>521</width>
+                        <height>191</height>
+                    </rect>
+                </property>
+                <property name="inputMethodHints">
+                    <set>Qt::ImhMultiLine</set>
+                </property>
+            </widget>
+            <widget class="QTextEdit" name="cipher_text">
+                <property name="geometry">
+                    <rect>
+                        <x>220</x>
+                        <y>210</y>
+                        <width>521</width>
+                        <height>191</height>
+                    </rect>
+                </property>
+            </widget>
+            <widget class="QTableWidget" name="table_stats">
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>40</y>
+                        <width>201</width>
+                        <height>161</height>
+                    </rect>
+                </property>
+                <property name="mouseTracking">
+                    <bool>true</bool>
+                </property>
+                <property name="horizontalScrollBarPolicy">
+                    <enum>Qt::ScrollBarAlwaysOff</enum>
+                </property>
+                <property name="sizeAdjustPolicy">
+                    <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+                </property>
+                <property name="editTriggers">
+                    <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+                <property name="selectionMode">
+                    <enum>QAbstractItemView::SingleSelection</enum>
+                </property>
+                <property name="selectionBehavior">
+                    <enum>QAbstractItemView::SelectRows</enum>
+                </property>
+                <property name="sortingEnabled">
+                    <bool>true</bool>
+                </property>
+                <property name="columnCount">
+                    <number>3</number>
+                </property>
+                <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+                    <bool>false</bool>
+                </attribute>
+                <attribute name="verticalHeaderVisible">
+                    <bool>false</bool>
+                </attribute>
+                <column>
+                    <property name="text">
+                        <string>Символ</string>
+                    </property>
+                </column>
+                <column>
+                    <property name="text">
+                        <string>Количество</string>
+                    </property>
+                </column>
+                <column>
+                    <property name="text">
+                        <string>%</string>
+                    </property>
+                </column>
+            </widget>
+            <widget class="QTableWidget" name="table_replace">
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>210</y>
+                        <width>201</width>
+                        <height>192</height>
+                    </rect>
+                </property>
+                <property name="verticalScrollBarPolicy">
+                    <enum>Qt::ScrollBarAlwaysOff</enum>
+                </property>
+                <property name="horizontalScrollBarPolicy">
+                    <enum>Qt::ScrollBarAlwaysOff</enum>
+                </property>
+                <property name="editTriggers">
+                    <set>QAbstractItemView::DoubleClicked</set>
+                </property>
+                <property name="selectionMode">
+                    <enum>QAbstractItemView::SingleSelection</enum>
+                </property>
+                <property name="selectionBehavior">
+                    <enum>QAbstractItemView::SelectRows</enum>
+                </property>
+                <property name="columnCount">
+                    <number>2</number>
+                </property>
+                <attribute name="horizontalHeaderVisible">
+                    <bool>false</bool>
+                </attribute>
+                <attribute name="verticalHeaderVisible">
+                    <bool>false</bool>
+                </attribute>
+                <column/>
+                <column/>
+            </widget>
+            <widget class="QFrame" name="horizontalFrame">
+                <property name="geometry">
+                    <rect>
+                        <x>-30</x>
+                        <y>360</y>
+                        <width>811</width>
+                        <height>291</height>
+                    </rect>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout"/>
+            </widget>
+            <widget class="QComboBox" name="combo">
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>10</y>
+                        <width>201</width>
+                        <height>21</height>
+                    </rect>
+                </property>
+                <item>
+                    <property name="text">
+                        <string>Русский</string>
+                    </property>
+                </item>
+                <item>
+                    <property name="text">
+                        <string>Английский</string>
+                    </property>
+                </item>
+            </widget>
+            <zorder>horizontalFrame</zorder>
+            <zorder>plain_text</zorder>
+            <zorder>cipher_text</zorder>
+            <zorder>table_stats</zorder>
+            <zorder>table_replace</zorder>
+            <zorder>combo</zorder>
+        </widget>
+        <widget class="QMenuBar" name="menuBar">
+            <property name="geometry">
+                <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>750</width>
+                    <height>21</height>
+                </rect>
+            </property>
+            <widget class="QMenu" name="menu_text">
+                <property name="title">
+                    <string>Текст</string>
+                </property>
+                <addaction name="action_analyse_text"/>
+                <addaction name="action_decrypt"/>
+                <addaction name="separator"/>
+                <addaction name="action_open_cipher"/>
+                <addaction name="action_save_cipher"/>
+            </widget>
+            <widget class="QMenu" name="menu_frequency">
+                <property name="title">
+                    <string>Частота</string>
+                </property>
+                <addaction name="action_analyse_freq"/>
+                <addaction name="action_clear"/>
+                <addaction name="separator"/>
+                <addaction name="action_open_plain"/>
+                <addaction name="action_save_plain"/>
+            </widget>
+            <addaction name="menu_text"/>
+            <addaction name="menu_frequency"/>
+        </widget>
+        <action name="action_analyse_text">
+            <property name="text">
+                <string>Анализировать</string>
+            </property>
+        </action>
+        <action name="action_decrypt">
+            <property name="text">
+                <string>Расшифровать</string>
+            </property>
+        </action>
+        <action name="action_open_plain">
+            <property name="text">
+                <string>Открыть</string>
+            </property>
+        </action>
+        <action name="action_open_cipher">
+            <property name="text">
+                <string>Открыть</string>
+            </property>
+        </action>
+        <action name="action_save_cipher">
+            <property name="text">
+                <string>Сохранить</string>
+            </property>
+        </action>
+        <action name="action_save_plain">
+            <property name="text">
+                <string>Сохранить</string>
+            </property>
+        </action>
+        <action name="action_clear">
+            <property name="text">
+                <string>Очистить</string>
+            </property>
+        </action>
+        <action name="action_analyse_freq">
+            <property name="text">
+                <string>Анализировать</string>
+            </property>
+        </action>
+    </widget>
+    <resources/>
+    <connections/>
+</ui>
