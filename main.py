@@ -2,14 +2,16 @@ import pickle
 import string
 from enum import Enum
 
+from PySide6 import QtCharts, QtGui, QtCore
+from PySide6.QtCharts import QChartView, QChart, QBarCategoryAxis, QBarSet
 from PySide6.QtCore import QModelIndex
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QTableWidgetItem
+from PySide6.QtGui import QPainter, QBrush, QColor
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QTableWidgetItem, QTableView
 from ui_mainwindow import Ui_MainWindow
 
 
 class Application(QMainWindow):
     class Language(Enum):
-        # USER = 0
         RUSSIAN = 0
         ENGLISH = 1
 
@@ -59,6 +61,8 @@ class Application(QMainWindow):
         self.ui.action_open_freq.triggered.connect(self.open_frequency)
         self.ui.action_save_freq.triggered.connect(self.save_frequency)
 
+        self.handle_language(self.ui.combo.currentIndex())
+
     def set_text_frequency(self, choice):
         self.ui.table_stats.setRowCount(len(self.abc[choice]))
         index = 0
@@ -106,12 +110,46 @@ class Application(QMainWindow):
         self.frequency = {}
         self.text_frequency = {}
 
+    def draw_chart(self, choice):
+        # построение гистограммы
+        if not self.frequency:
+            return QMessageBox.information(self, "Ошибка", "Некорректные значения частот", QMessageBox.Ok)
+        layout = self.ui.horizontalLayout.takeAt(0)
+        if layout:
+            layout.widget().deleteLater()
+        self.setFixedHeight(650)
+        axis_x = QtCharts.QBarCategoryAxis()
+        axis_y = QtCharts.QValueAxis()
+        series = QtCharts.QBarSeries()
+        practical = QBarSet("Текущее")
+        practical.setColor(QColor(163, 74, 236, 255))
+        practical.setBorderColor(QColor(255, 255, 255, 255))
+        theory = QBarSet("Ожидаемое")
+        theory.setColor(QColor(98, 235, 56, 255))
+        for i in self.abc[choice]:
+            axis_x.append(i.upper())
+            practical.append(self.text_frequency.get(i)[1])
+            theory.append(self.frequency.get(i))
+        series.append(practical)
+        series.append(theory)
+        chart = QtCharts.QChart()
+        chart.addAxis(axis_x, QtCore.Qt.AlignmentFlag.AlignBottom)
+        chart.addSeries(series)
+        max_value_freq = max(self.frequency.items(), key=lambda x: x[1])[1]
+        max_value_text = max(self.text_frequency.items(), key=lambda x: x[1][1])[1][1]
+        axis_y.setRange(0, max(max_value_freq, max_value_text))
+        chart.addAxis(axis_y, QtCore.Qt.AlignmentFlag.AlignLeft)
+        series.attachAxis(axis_y)
+        chart_view = QtCharts.QChartView(chart)
+        chart_view.setRenderHint(QPainter.Antialiasing)
+        chart_view.chart().setBackgroundBrush(QBrush(QColor(0, 0, 0, 0)))
+        self.ui.horizontalLayout.addWidget(chart_view)
+
     def analyze_ciphertext(self):
-        # todo: тут анализируем шифротекст, получаем вероятности
+        # анализируем шифротекст, получаем вероятности
         self.ui.table_stats.clearContents()
         self.ui.table_stats.setRowCount(0)
         self.text_frequency = {}
-
         text = self.ui.plain_text.toPlainText().lower().replace("\n", "").replace("\r", "").replace(" ", "")
         if not text:
             return QMessageBox.information(self, "Ошибка", "Текст не найден", QMessageBox.Ok)
@@ -121,14 +159,15 @@ class Application(QMainWindow):
         self.text_frequency = {k: v for k, v in
                                sorted(self.text_frequency.items(), key=lambda item: item[1][1], reverse=True)}
         self.set_text_frequency(self.ui.combo.currentIndex())
+        if self.frequency:
+            self.set_frequency(self.ui.combo.currentIndex())
+        self.draw_chart(self.ui.combo.currentIndex())
 
     def analyze_plaintext(self):
-        # todo: тут анализируем открытый, получаем вероятности символов для каждого автора
-        # self.ui.combo.setCurrentIndex(0)
+        # анализируем открытый, получаем вероятности символов для каждого автора
         self.ui.table_replace.clearContents()
         self.ui.table_replace.setRowCount(0)
         self.frequency = {}
-
         text = self.ui.plain_text.toPlainText().lower().replace("\n", "").replace("\r", "").replace(" ", "")
         if not text:
             return QMessageBox.information(self, "Ошибка", "Текст не найден", QMessageBox.Ok)

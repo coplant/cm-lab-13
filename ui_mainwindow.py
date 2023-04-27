@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(750, 433)
         MainWindow.setMinimumSize(QSize(750, 433))
-        MainWindow.setMaximumSize(QSize(750, 1000))
+        MainWindow.setMaximumSize(QSize(750, 650))
         self.action_analyse_text = QAction(MainWindow)
         self.action_analyse_text.setObjectName(u"action_analyse_text")
         self.action_decrypt = QAction(MainWindow)
@@ -125,6 +125,8 @@ class Ui_MainWindow(object):
         self.menu_frequency.addAction(self.action_save_freq)
 
         self.retranslateUi(MainWindow)
+
+        self.combo.setCurrentIndex(0)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
