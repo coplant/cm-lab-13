@@ -1,3 +1,4 @@
+import pickle
 import string
 from enum import Enum
 
@@ -45,26 +46,28 @@ class Application(QMainWindow):
 
         self.ui.combo.view().pressed.connect(lambda x: self.handle_language(x.row()))
         # self.ui.proc_button.clicked.connect(self.process_data)
-        # self.ui.open_file.triggered.connect(self.open)
-        # self.ui.save_file.triggered.connect(self.save)
+        self.ui.action_clear.triggered.connect(self.clear)
+        self.ui.action_open_cipher.triggered.connect(self.open)
+        self.ui.action_save_cipher.triggered.connect(self.save)
+        self.ui.action_open_freq.triggered.connect(self.open_frequency)
+        self.ui.action_save_freq.triggered.connect(self.save_frequency)
+
+    def set_frequency(self):
+        self.ui.table_replace.setRowCount(len(self.frequency))
+        for i in range(len(self.frequency)):
+            letter, frequency = list(self.frequency.items())[i]
+            self.ui.table_replace.setItem(i, 1, QTableWidgetItem(f"{letter.upper()} - {frequency * 100:g}"))
 
     def handle_language(self, x):
         if x == self.Language.RUSSIAN.value:
             self.frequency = {k: v for k, v in sorted(self.ru_abc.items(), key=lambda item: item[1], reverse=True)}
-            self.ui.table_replace.setRowCount(len(self.ru_abc))
-            for i in range(len(self.ru_abc)):
-                letter, frequency = list(self.frequency.items())[i]
-                self.ui.table_replace.setItem(i, 1, QTableWidgetItem(f"{letter.upper()} - {frequency}"))
         elif x == self.Language.ENGLISH.value:
             self.frequency = {k: v for k, v in sorted(self.en_abc.items(), key=lambda item: item[1], reverse=True)}
-            self.ui.table_replace.setRowCount(len(self.en_abc))
-            for i in range(len(self.en_abc)):
-                letter, frequency = list(self.frequency.items())[i]
-                self.ui.table_replace.setItem(i, 1, QTableWidgetItem(f"{letter.upper()} - {frequency}"))
         elif x == self.Language.USER.value:
-            # self.ui.table_replace.clear()
+            # self.clear()  # todo
             self.frequency = {}
             ...
+        self.set_frequency()
 
     def clear(self):
         # is_decrypted = False
@@ -72,6 +75,7 @@ class Application(QMainWindow):
         self.ui.table_stats.setRowCount(0)
         self.ui.table_replace.clearContents()
         self.ui.table_replace.setRowCount(0)
+        self.frequency = {}
 
     def process_data(self):
         self.clear()
@@ -90,6 +94,24 @@ class Application(QMainWindow):
         if file_name[0]:
             with open(file_name[0], "w") as file:
                 file.write(self.ui.cipher_text.toPlainText())
+        else:
+            QMessageBox.information(self, "Ошибка", "Файл не выбран", QMessageBox.Ok)
+
+    def open_frequency(self):
+        file_name = QFileDialog.getOpenFileName(self, "Открыть файл", ".", "All Files (*)")
+        if file_name[0]:
+            self.clear()
+            with open(file_name[0], "rb") as file:
+                self.frequency = pickle.load(file)
+                self.set_frequency()
+        else:
+            QMessageBox.information(self, "Ошибка", "Файл не выбран", QMessageBox.Ok)
+
+    def save_frequency(self):
+        file_name = QFileDialog.getSaveFileName(self, "Сохранить файл", ".", "All Files (*)")
+        if file_name[0]:
+            with open(file_name[0], "wb") as file:
+                pickle.dump(self.frequency, file)
         else:
             QMessageBox.information(self, "Ошибка", "Файл не выбран", QMessageBox.Ok)
 
