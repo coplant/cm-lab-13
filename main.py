@@ -1,12 +1,9 @@
 import pickle
-import string
 from enum import Enum
 
-from PySide6 import QtCharts, QtGui, QtCore
-from PySide6.QtCharts import QChartView, QChart, QBarCategoryAxis, QBarSet
-from PySide6.QtCore import QModelIndex
+from PySide6 import QtCharts, QtCore
 from PySide6.QtGui import QPainter, QBrush, QColor
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QTableWidgetItem, QTableView
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QTableWidgetItem
 from ui_mainwindow import Ui_MainWindow
 
 
@@ -21,6 +18,7 @@ class Application(QMainWindow):
 
     def __init__(self):
         super(Application, self).__init__()
+        self.is_decrypted = False
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.show()
@@ -50,7 +48,8 @@ class Application(QMainWindow):
         }
         self.abc = [self.ru_abc, self.en_abc]
         self.ui.combo.view().pressed.connect(lambda x: self.handle_language(x.row()))
-        # self.ui.proc_button.clicked.connect(self.process_data)
+        self.ui.table_replace.cellChanged.connect(self.handle_replace)
+        self.ui.action_decrypt.triggered.connect(self.decrypt_text)
         self.ui.action_analyse_text.triggered.connect(self.analyze_ciphertext)
         self.ui.action_analyse_freq.triggered.connect(self.analyze_plaintext)
 
@@ -62,6 +61,10 @@ class Application(QMainWindow):
         self.ui.action_save_freq.triggered.connect(self.save_frequency)
 
         self.handle_language(self.ui.combo.currentIndex())
+
+    def handle_replace(self, row, column):
+        if self.is_decrypted:
+            print(row, column)
 
     def set_text_frequency(self, choice):
         self.ui.table_stats.setRowCount(len(self.abc[choice]))
@@ -101,19 +104,35 @@ class Application(QMainWindow):
         if self.text_frequency:
             self.set_text_frequency(x)
 
+    def decrypt_text(self):
+        text = self.ui.plain_text.toPlainText()
+        size = self.ui.table_replace.rowCount()
+        replace = {}
+        decrypted = ""
+        for i in range(size):
+            replace[self.ui.table_replace.item(i, 0).text()[0].lower()] = self.ui.table_replace.item(i, 1).text()[
+                0].lower()
+        for char in text:
+            to_add = replace.get(char.lower(), char)
+            if char.isupper():
+                to_add = to_add.upper()
+            decrypted += to_add
+        self.ui.cipher_text.setText(decrypted)
+        self.is_decrypted = True
+
     def clear(self):
-        # is_decrypted = False
         self.ui.table_stats.clearContents()
         self.ui.table_stats.setRowCount(0)
         self.ui.table_replace.clearContents()
         self.ui.table_replace.setRowCount(0)
         self.frequency = {}
         self.text_frequency = {}
+        self.is_decrypted = False
 
     def draw_chart(self, choice):
         # построение гистограммы
         if not self.frequency:
-            return QMessageBox.information(self, "Ошибка", "Некорректные значения частот", QMessageBox.Ok)
+            return QMessageBox.information(self, "Ошибка", "Некорректные значения частот")
         layout = self.ui.horizontalLayout.takeAt(0)
         if layout:
             layout.widget().deleteLater()
@@ -121,10 +140,10 @@ class Application(QMainWindow):
         axis_x = QtCharts.QBarCategoryAxis()
         axis_y = QtCharts.QValueAxis()
         series = QtCharts.QBarSeries()
-        practical = QBarSet("Текущее")
+        practical = QtCharts.QBarSet("Текущее")
         practical.setColor(QColor(163, 74, 236, 255))
         practical.setBorderColor(QColor(255, 255, 255, 255))
-        theory = QBarSet("Ожидаемое")
+        theory = QtCharts.QBarSet("Ожидаемое")
         theory.setColor(QColor(98, 235, 56, 255))
         for i in self.abc[choice]:
             axis_x.append(i.upper())
@@ -152,7 +171,7 @@ class Application(QMainWindow):
         self.text_frequency = {}
         text = self.ui.plain_text.toPlainText().lower().replace("\n", "").replace("\r", "").replace(" ", "")
         if not text:
-            return QMessageBox.information(self, "Ошибка", "Текст не найден", QMessageBox.Ok)
+            return QMessageBox.information(self, "Ошибка", "Текст не найден")
         for abc in self.abc:
             for char in abc:
                 self.text_frequency[char] = (text.count(char), text.count(char) / len(text))
@@ -170,7 +189,7 @@ class Application(QMainWindow):
         self.frequency = {}
         text = self.ui.plain_text.toPlainText().lower().replace("\n", "").replace("\r", "").replace(" ", "")
         if not text:
-            return QMessageBox.information(self, "Ошибка", "Текст не найден", QMessageBox.Ok)
+            return QMessageBox.information(self, "Ошибка", "Текст не найден")
         for abc in self.abc:
             for char in abc:
                 self.frequency[char] = text.count(char) / len(text)
@@ -179,17 +198,15 @@ class Application(QMainWindow):
         if self.text_frequency:
             self.set_text_frequency(self.ui.combo.currentIndex())
 
-    def process_data(self):
-        self.clear()
-
     def open_text(self):
         file_name = QFileDialog.getOpenFileName(self, "Открыть файл", ".", "All Files (*)")
         if file_name[0]:
-            with open(file_name[0], "r") as file:
+            self.is_decrypted = False
+            with open(file_name[0], "r", encoding="utf-8") as file:
                 self.data = file.read()
                 self.ui.plain_text.setText(self.data)
         else:
-            QMessageBox.information(self, "Ошибка", "Файл не выбран", QMessageBox.Ok)
+            QMessageBox.information(self, "Ошибка", "Файл не выбран")
 
     def save_text(self):
         file_name = QFileDialog.getSaveFileName(self, "Сохранить файл", ".", "All Files (*)")
@@ -197,27 +214,25 @@ class Application(QMainWindow):
             with open(file_name[0], "w") as file:
                 file.write(self.ui.cipher_text.toPlainText())
         else:
-            QMessageBox.information(self, "Ошибка", "Файл не выбран", QMessageBox.Ok)
+            QMessageBox.information(self, "Ошибка", "Файл не выбран")
 
     def open_frequency(self):
         file_name = QFileDialog.getOpenFileName(self, "Открыть файл", ".", "All Files (*)")
         if file_name[0]:
             self.clear()
             with open(file_name[0], "rb") as file:
-                # todo: open analysed frequency
                 self.frequency = pickle.load(file)
                 self.set_frequency(self.ui.combo.currentIndex())
         else:
-            QMessageBox.information(self, "Ошибка", "Файл не выбран", QMessageBox.Ok)
+            QMessageBox.information(self, "Ошибка", "Файл не выбран")
 
     def save_frequency(self):
         file_name = QFileDialog.getSaveFileName(self, "Сохранить файл", ".", "All Files (*)")
         if file_name[0]:
             with open(file_name[0], "wb") as file:
-                # todo: save analysed frequency
                 pickle.dump(self.frequency, file)
         else:
-            QMessageBox.information(self, "Ошибка", "Файл не выбран", QMessageBox.Ok)
+            QMessageBox.information(self, "Ошибка", "Файл не выбран")
 
 
 if __name__ == "__main__":
