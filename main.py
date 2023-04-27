@@ -68,15 +68,17 @@ class Application(QMainWindow):
             self.ui.table_replace.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         if self.is_decrypted:
             char_before = self.before[column][row]
-            cell_before = f"{char_before}{self.ui.table_replace.item(row, column).text()[1:]}"
+            # cell_before = f"{char_before}{}"
             self.before[column][row] = self.ui.table_replace.item(row, column).text()[0].lower()
 
             for i in range(self.ui.table_replace.rowCount()):
                 if self.ui.table_replace.item(i, column).text()[0].lower() == self.before[column][
                     row].lower() and row != i:
-                    text = self.ui.table_replace.item(i, column).text()
-                    self.ui.table_replace.item(i, column).setText(cell_before.upper())
-                    self.ui.table_replace.item(row, column).setText(text.upper())
+                    char_after = self.ui.table_replace.item(i, column).text()[0]
+                    self.ui.table_replace.item(i, column).setText(
+                        f"{char_before.upper()}{self.ui.table_replace.item(i, column).text()[1:]}")
+                    self.ui.table_replace.item(row, column).setText(
+                        f"{char_after.upper()}{self.ui.table_replace.item(row, column).text()[1:]}")
                     self.decrypt_text()
                     break
 
