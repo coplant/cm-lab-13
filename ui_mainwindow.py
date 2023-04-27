@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 ## Form generated from reading UI file 'mainwindow.ui'
 ##
@@ -20,7 +18,6 @@ from PySide6.QtWidgets import (QAbstractItemView, QAbstractScrollArea, QApplicat
                                QFrame, QHBoxLayout, QHeaderView, QMainWindow,
                                QMenu, QMenuBar, QSizePolicy, QTableWidget,
                                QTableWidgetItem, QTextEdit, QWidget)
-
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -96,6 +93,7 @@ class Ui_MainWindow(object):
         self.combo = QComboBox(self.centralwidget)
         self.combo.addItem("")
         self.combo.addItem("")
+        self.combo.addItem("")
         self.combo.setObjectName(u"combo")
         self.combo.setGeometry(QRect(10, 10, 201, 21))
         MainWindow.setCentralWidget(self.centralwidget)
@@ -130,7 +128,6 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
-
     # setupUi
 
     def retranslateUi(self, MainWindow):
@@ -165,10 +162,13 @@ class Ui_MainWindow(object):
                                        None));
         ___qtablewidgetitem2 = self.table_stats.horizontalHeaderItem(2)
         ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"%", None));
-        self.combo.setItemText(0,
+        self.combo.setItemText(0, QCoreApplication.translate("MainWindow",
+                                                             u"\u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u0441\u043a\u0438\u0439",
+                                                             None))
+        self.combo.setItemText(1,
                                QCoreApplication.translate("MainWindow", u"\u0420\u0443\u0441\u0441\u043a\u0438\u0439",
                                                           None))
-        self.combo.setItemText(1, QCoreApplication.translate("MainWindow",
+        self.combo.setItemText(2, QCoreApplication.translate("MainWindow",
                                                              u"\u0410\u043d\u0433\u043b\u0438\u0439\u0441\u043a\u0438\u0439",
                                                              None))
 
@@ -176,3 +176,4 @@ class Ui_MainWindow(object):
         self.menu_frequency.setTitle(
             QCoreApplication.translate("MainWindow", u"\u0427\u0430\u0441\u0442\u043e\u0442\u0430", None))
     # retranslateUi
+

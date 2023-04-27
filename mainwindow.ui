@@ -162,6 +162,11 @@
                 </property>
                 <item>
                     <property name="text">
+                        <string>Пользовательский</string>
+                    </property>
+                </item>
+                <item>
+                    <property name="text">
                         <string>Русский</string>
                     </property>
                 </item>
