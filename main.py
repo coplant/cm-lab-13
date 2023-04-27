@@ -3,7 +3,7 @@ from enum import Enum
 
 from PySide6 import QtCharts, QtCore
 from PySide6.QtGui import QPainter, QBrush, QColor
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QTableWidgetItem
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QTableWidgetItem, QAbstractItemView
 from ui_mainwindow import Ui_MainWindow
 
 
@@ -18,6 +18,8 @@ class Application(QMainWindow):
 
     def __init__(self):
         super(Application, self).__init__()
+        self.before = ()
+        self.replace = {}
         self.is_decrypted = False
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -59,16 +61,29 @@ class Application(QMainWindow):
         self.ui.action_save_cipher.triggered.connect(self.save_text)
         self.ui.action_open_freq.triggered.connect(self.open_frequency)
         self.ui.action_save_freq.triggered.connect(self.save_frequency)
-
         self.handle_language(self.ui.combo.currentIndex())
 
     def handle_replace(self, row, column):
+        if not self.is_decrypted:
+            self.ui.table_replace.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         if self.is_decrypted:
-            print(row, column)
+            char_before = self.before[column][row]
+            cell_before = f"{char_before}{self.ui.table_replace.item(row, column).text()[1:]}"
+            self.before[column][row] = self.ui.table_replace.item(row, column).text()[0].lower()
+
+            for i in range(self.ui.table_replace.rowCount()):
+                if self.ui.table_replace.item(i, column).text()[0].lower() == self.before[column][
+                    row].lower() and row != i:
+                    text = self.ui.table_replace.item(i, column).text()
+                    self.ui.table_replace.item(i, column).setText(cell_before.upper())
+                    self.ui.table_replace.item(row, column).setText(text.upper())
+                    self.decrypt_text()
+                    break
 
     def set_text_frequency(self, choice):
         self.ui.table_stats.setRowCount(len(self.abc[choice]))
         index = 0
+        self.before = ([k for k, _ in self.text_frequency.items()], [k for k, _ in self.frequency.items()])
         for i in range(len(self.text_frequency.items())):
             text_frequency = list(self.text_frequency.items())
             if text_frequency[i][0].lower() in self.abc[choice].keys():
@@ -107,24 +122,27 @@ class Application(QMainWindow):
     def decrypt_text(self):
         text = self.ui.plain_text.toPlainText()
         size = self.ui.table_replace.rowCount()
-        replace = {}
         decrypted = ""
+        self.replace = {}
         for i in range(size):
-            replace[self.ui.table_replace.item(i, 0).text()[0].lower()] = self.ui.table_replace.item(i, 1).text()[
+            self.replace[self.ui.table_replace.item(i, 0).text()[0].lower()] = self.ui.table_replace.item(i, 1).text()[
                 0].lower()
         for char in text:
-            to_add = replace.get(char.lower(), char)
+            to_add = self.replace.get(char.lower(), char)
             if char.isupper():
                 to_add = to_add.upper()
             decrypted += to_add
         self.ui.cipher_text.setText(decrypted)
         self.is_decrypted = True
+        self.ui.table_replace.setEditTriggers(QAbstractItemView.EditTrigger.DoubleClicked)
 
     def clear(self):
         self.ui.table_stats.clearContents()
         self.ui.table_stats.setRowCount(0)
         self.ui.table_replace.clearContents()
         self.ui.table_replace.setRowCount(0)
+        self.ui.cipher_text.clear()
+        self.replace = {}
         self.frequency = {}
         self.text_frequency = {}
         self.is_decrypted = False
